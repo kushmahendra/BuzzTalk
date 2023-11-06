@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block css %}
+<style>
+    body {
+        background-image: url("{% static 'core/images/room.jpg' %}");
+        background-repeat: no-repeat;
+        background-size: 50%;
+        background-position-x:50%;
+        background-position-y: -50%;
+    }
+</style>
+{% endblock css %}
+
+{% block title %}Rooms{% endblock title %}
+
+{% block content %}
+{% for message in messages %}
+<div class="container mb-1 alert alert-dark" role="alert">
+    <strong>{{ message }}</strong>
+</div>
+{% endfor %}
+
+<div class="container">
+    <div class="row">
+        {% for room in rooms %}
+        <div class="col-md-2 border border-secondary bg-gradient rounded mx-1 mt-2 px-0">
+            <div class="card">
+                <div class="card-body px-2">
+                    <h5 class="card-title">{{ room.name }}</h5>
+                    {% if room.user == request.user %}
+                    <form method="post" action="{% url 'room' room.slug %}">
+                        {% csrf_token %}
+                        <button
+                        type="submit"
+                        
+                        class="btn btn-success bg-gradient btn-rounded"
+            
+                    >
+                        Go to Room
+                    </button>
+                    </form>
+                    {% else %}
+                    <button
+                        type="button"
+                        data-mdb-toggle="modal"
+                        data-mdb-target="#exampleModal{{ room.id }}"
+                        class="btn btn-primary bg-gradient btn-rounded"
+                        data-mdb-ripple-color="dark"
+                        data-room-id="{{ room.id }}"
+                    >
+                        Join room
+                    </button>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for the room -->
+        <div class="modal fade" id="exampleModal{{ room.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Enter Room Code for <u><strong>{{ room.name }}</strong></u></h5>
+                        <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="." method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="room_name" value="{{ room.name }}">
+                        <div class="modal-body">
+                            <input type="text" name="join_code" class="container-fluid" required>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Join</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const joinButtons = document.querySelectorAll('.join-room-button');
+      const roomInput = document.getElementById('roomInput');
+      const roomName = document.getElementById('roomName');
+
+      joinButtons.forEach(button => {
+          button.addEventListener('click', function() {
+              const roomId = button.getAttribute('data-room-id');
+              const roomDisplayName = button.closest('.card').querySelector('.card-title').innerText;
+
+              roomInput.value = roomId;
+              roomName.innerText = roomDisplayName;
+          });
+      });
+  });
+</script>
+
+
+{% endblock content %}

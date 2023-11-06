@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %} {% load static %} {% block title %}Home
+{%endblock title %} {% block content %}
+
+<div class="container col-xxl-8 px-4 mb-0 pb-0 rounded">
+  <div class="row flex-lg-row-reverse align-items-center g-5 pt-4">
+    <div class="col-10 col-sm-8 col-lg-6">
+      <img
+        src="{% static 'core/images/chat-img.png' %}"
+        class="d-block mx-lg-auto img-fluid rounded"
+        alt="Bootstrap Themes"
+        width="700"
+        height="500"
+        loading="lazy"
+      />
+    </div>
+    <div class="col-lg-6">
+      <h1 class="display-5 fw-bold text-body-emphasis lh-1 mb-3">BuzzTalks</h1>
+      <h2>Instant Messaging</h2>
+      <p>Experience real-time messaging with no delays or waiting time.</p>
+      <h2>Multi-Platform</h2>
+      <p>
+        Access BuzzTalks on any device, whether it's a phone, tablet, or
+        desktop.
+      </p>
+      <h2>Meet New Friends</h2>
+      <p>
+        Connect with people from around the globe and make new friends easily.
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

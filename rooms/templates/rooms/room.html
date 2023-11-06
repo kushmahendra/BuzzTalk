@@ -1,0 +1,146 @@
+{% extends 'core/base.html' %}
+
+
+
+{% block title %}{{rooms.name}}{% endblock title %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col ">
+      <div class="scrollable-container  d-flex flex-column justify-content-between">
+        <!-- Header -->
+        <div class="p-10 lg:p-20 text-center">
+          <span class="badge rounded-pill badge-primary bg-gradient h2" style="font-size: 24px; margin-top: 10px;">{{rooms.name}}</span>
+        </div>
+
+        <!-- Chat messages -->
+        <div class="lg:w-2/4 mx-4 lg:mx-auto p-1 bg-red rounded-xl">
+          <div style="height: 300px; overflow-y: auto" id="chat-messages">
+            <!-- Your messages here -->
+            {% for message in messages %}
+            <div class="p-2 bg-secondary bg-gradient rounded my-2">
+              {% if message.user == request.user %}
+              <p class="font-bold text-white text-end">@<strong>You</strong></p>
+              <p class="text-white text-end">{{message.content}}</p>
+
+              {% else %}
+
+              <p class="font-bold text-white">@<strong>{{message.user.username}}</strong></p>
+              <p class="text-white">{{message.content}}</p>
+
+              
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Input form -->
+        <div class="lg:w-2/4 mx-4 lg:mx-auto  p-2  rounded-xl mb-3">
+          <form action="." method="post" class="flex">
+            {% csrf_token %}
+            <div class="form-outline w-100 fixed-bottom">
+              <textarea
+                class="form-control"
+                name="content"
+                id="chat-message-input"
+                rows="4"
+              ></textarea>
+              <label class="form-label">Message</label>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary btn-rounded bg-gradient mt-2"
+              id="chat-message-submit"
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  {% endblock content %} {% block scripts %}
+  {{rooms.slug|json_script:"json-roomname"}}
+  {{request.user.username|json_script:"json-username"}}
+  <script>
+    const roomName = JSON.parse(
+      document.getElementById("json-roomname").textContent
+    );
+    const userName = JSON.parse(
+      document.getElementById("json-username").textContent
+    );
+    const chatSocket = new WebSocket(
+      "ws://" + window.location.host + "/ws/" + roomName + "/"
+    );
+
+    chatSocket.onmessage = function (e) {
+      console.log("onmessage");
+
+      const data = JSON.parse(e.data);
+
+      if (data.message) {
+        let html = '<div class="p-2 bg-secondary bg-gradient rounded my-2">';
+      
+        if (data.username === '{{ request.user.username }}') {
+          
+          html += '<p class="font-semibold text-white text-end">@<strong>You</strong></p>';
+        html += '<p class="text-white text-end">' + data.message + '</p></div>';
+
+        } else {
+          html += '<p class="font-semibold text-white">@<strong>' + data.username + '</strong></p>';
+        html += '<p class="text-white">' + data.message + '</p></div>';
+
+        }
+      
+      
+        document.querySelector("#chat-messages").innerHTML += html;
+        scrollToBottom();
+      } else {
+        alert("the message was empty");
+      }
+    };
+
+    chatSocket.onclose = function (e) {
+      console.log("onclose");
+    };
+
+    document.querySelector("#chat-message-submit").onclick = function (e) {
+      e.preventDefault();
+      const messageInput = document.querySelector("#chat-message-input");
+      const message = messageInput.value;
+
+      chatSocket.send(
+        JSON.stringify({ message: message, username: userName, room: roomName })
+      );
+      messageInput.value = "";
+
+      return false;
+    };
+
+    function scrollToBottom() {
+      const objDiv = document.querySelector("#chat-messages");
+      objDiv.scrollTop = objDiv.scrollHeight;
+      console.log("aa rhe gaand na bhulao bhai");
+      
+    }
+    scrollToBottom();
+
+    var inputField = document.getElementById('chat-message-input');
+var submitButton = document.getElementById('chat-message-submit');
+
+// Add an event listener to the input field to detect key presses
+inputField.addEventListener('keyup', function(event) {
+  // Check if the pressed key is the "Enter" key (key code 13)
+  if (event.keyCode === 13) {
+    // Simulate a click on the submit button
+    submitButton.click();
+  }
+});
+  </script>
+  {% endblock scripts %}
+</div>

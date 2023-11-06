@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %} {% block title %}Create Room{% endblock title %}
+{% load static %} {% block css %}
+<style>
+  body {
+    background-image: url("{% static 'core/images/create_room3.jpg' %}");
+
+    background-repeat: no-repeat;
+    background-size: 70%;
+    background-position: 50%;
+    background-position-y: -20%;
+  }
+</style>
+{% endblock css %} {% block content %}
+<div class="container mt-4 text-center" id="background">
+  <form method="post">
+    {% csrf_token %}
+    <strong>{{ form.as_p }}</strong>
+    <button type="submit" class="btn btn-primary btn-rounded bg-gradient">
+      Create Room
+    </button>
+  </form>
+</div>
+
+{% endblock %}
